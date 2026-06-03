@@ -1,0 +1,88 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden; /* 防止內容溢出導致捲軸 */
+}
+
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* 使用視窗高度 */
+  width: 100vw;      /* 使用視窗寬度 */
+  background-color: rgb(18, 18, 18);
+  position: fixed;   /* 確保它是固定的覆蓋層 */
+  top: 0;
+  left: 0;
+}
+
+.login-card {
+  background-color: rgb(30, 30, 30);
+  padding: 2.5rem;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 440px;
+  border: 1px solid #333;
+  text-align: center;
+}
+
+.login-card h2 {
+  color: #22d3ee; /* 對應 OpenCTI 的青色 */
+  margin-bottom: 0.5rem;
+  /* font-size: 1.25rem; */
+}
+
+.login-card p {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.login-input {
+  width: 100%;
+  background-color: rgb(38, 38, 38);
+  color: white;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid #333;
+  border-radius: 4px;
+  box-sizing: border-box; /* 確保不會因為 padding 撐爆 */
+  transition: border-color 0.2s;
+}
+
+.login-input:focus {
+  border-color: #06b6d4;
+  outline: none;
+}
+
+.login-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #06b6d4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.login-button:hover {
+  background-color: #0891b2;
+}
+
+.logout-button {
+  background-color: #ef4444; /* 紅色代表危險/登出動作 */
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  background-color: #dc2626;
+}
