@@ -9,6 +9,9 @@ export default defineConfig({
         target: 'http://localhost:3000', // 你的後端位置
         changeOrigin: true,
         //rewrite: (path) => path.replace(/^\/api/, '') // 關鍵：這會將 /api/login 變成 /login
+        cookieDomainRewrite: {
+          "*": "localhost"
+        }
       }
     }
   }

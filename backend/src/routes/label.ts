@@ -1,9 +1,19 @@
 import { Hono } from 'hono';
 import { getCookie } from 'hono/cookie';
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from 'fs';
+import path from 'path';
 
 const labelRouter = new Hono();
+
+// 定義路徑
+const DATABASE_DIR = path.join(__dirname, '../../database');
+const MERGE_RULES_FILE = path.join(DATABASE_DIR, 'merge_rule.json');
+const ASSOCIATION_RULES_FILE = path.join(DATABASE_DIR, 'association_rules.json');
+
+// 確保目錄存在
+if (!fs.existsSync(DATABASE_DIR)) {
+    fs.mkdirSync(DATABASE_DIR, { recursive: true });
+}
 
 // 環境設定
 const GRAPHQL_URL = 'http://localhost:8080/graphql';
@@ -83,7 +93,7 @@ async function performMutation(query: string, variables: any = {}) {
 
 // 1. 獲取所有標籤
 labelRouter.get('/', async (c) => {
-    const token = getCookie(c, 'auth_token');
+    const token = OPENCTI_TOKEN;
     if (!token) return c.json({ error: 'Unauthorized' }, 401);
 
     try {
@@ -126,7 +136,8 @@ labelRouter.get('/', async (c) => {
 
 // 2. 執行標籤合併
 labelRouter.post('/merge', async (c) => {
-    const token = getCookie(c, 'auth_token');
+    const token = OPENCTI_TOKEN;
+
     if (!token) return c.json({ error: 'Unauthorized' }, 401);
 
     try {
@@ -176,6 +187,68 @@ labelRouter.post('/merge', async (c) => {
     }
 });
 
+//建立自動化規則
+labelRouter.get('/rule/list/:type', (c) => {
+    const type = c.req.param('type');
+    const filePath = type === 'merge' ? MERGE_RULES_FILE : ASSOCIATION_RULES_FILE;
+    if (!fs.existsSync(filePath)) return c.json([]);
+    return c.json(JSON.parse(fs.readFileSync(filePath, 'utf-8')));
+});
 
+labelRouter.post('/rule/add/:type', async (c) => {
+    const type = c.req.param('type'); // 接收 'merge' 或 'association'
+    const filePath = type === 'merge' ? MERGE_RULES_FILE : ASSOCIATION_RULES_FILE;
+
+    try {
+        const body = await c.req.json();
+        
+        if (!body.target || (type === 'merge' && !body.sources) || (type === 'association' && !body.conditions)) {
+            return c.json({ error: "規則參數不完整" }, 400);
+        }
+        const rules = fs.existsSync(filePath) 
+            ? JSON.parse(fs.readFileSync(filePath, 'utf-8')) 
+            : [];
+            
+        rules.push({ 
+            id: Date.now().toString(),
+            ...body, 
+            createdAt: new Date().toISOString() 
+        });
+        
+        fs.writeFileSync(filePath, JSON.stringify(rules, null, 2));
+        
+        return c.json({ status: 'success', message: `規則已新增至 ${type}` });
+    } catch (err: any) {
+        return c.json({ error: "儲存失敗: " + err.message }, 500);
+    }
+});
+
+labelRouter.put('/rule/update/:type/:id', async (c) => {
+    const type = c.req.param('type');
+    const id = c.req.param('id');
+    const filePath = type === 'merge' ? MERGE_RULES_FILE : ASSOCIATION_RULES_FILE;
+    const body = await c.req.json();
+
+    let rules = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const index = rules.findIndex((r: any) => r.id === id);
+    
+    if (index === -1) return c.json({ error: "找不到該規則" }, 404);
+    
+    rules[index] = { ...rules[index], ...body, updatedAt: new Date().toISOString() };
+    fs.writeFileSync(filePath, JSON.stringify(rules, null, 2));
+    return c.json({ status: 'success' });
+});
+
+labelRouter.delete('/rule/delete/:type/:id', (c) => {
+    const type = c.req.param('type');
+    const id = c.req.param('id');
+    const filePath = type === 'merge' ? MERGE_RULES_FILE : ASSOCIATION_RULES_FILE;
+
+    let rules = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    rules = rules.filter((r: any) => r.id !== id);
+    
+    fs.writeFileSync(filePath, JSON.stringify(rules, null, 2));
+    return c.json({ status: 'success' });
+});
 
 export default labelRouter;

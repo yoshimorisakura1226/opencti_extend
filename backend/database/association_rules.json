@@ -1,0 +1,21 @@
+[
+  {
+    "type": "append",
+    "target": "vul",
+    "conditions": [
+      "web-vul",
+      "xss-vul"
+    ],
+    "createdAt": "2026-06-03T..."
+  },
+  {
+    "id": "1780473007348",
+    "target": "vul",
+    "conditions": [
+      "123",
+      "456",
+      ""
+    ],
+    "createdAt": "2026-06-03T07:50:07.348Z"
+  }
+]

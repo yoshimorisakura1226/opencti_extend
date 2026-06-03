@@ -1,0 +1,21 @@
+[
+  {
+    "type": "merge",
+    "target": "0-day",
+    "sources": [
+      "0-days",
+      "zeroday",
+      "0day"
+    ],
+    "createdAt": "2026-06-03T..."
+  },
+  {
+    "id": "1780472521411",
+    "target": "government infrastructure",
+    "sources": [
+      "backdoor"
+    ],
+    "createdAt": "2026-06-03T07:42:01.411Z",
+    "updatedAt": "2026-06-03T07:57:55.362Z"
+  }
+]
