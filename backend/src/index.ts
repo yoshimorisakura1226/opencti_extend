@@ -32,7 +32,7 @@ app.get('*', async (c) => {
 // 自動化排程(每日12：00執行合併、13：00執行關聯新增)
 const API_BASE = 'http://localhost:8081';
 
-cron.schedule('0 12 * * *', async () => {
+cron.schedule('* * * * *', async () => {
     try {
         const rules = JSON.parse(await readFile(path.join(__dirname, '../database/merge_rules.json'), 'utf-8'));
         for (const rule of rules) {
@@ -50,7 +50,7 @@ cron.schedule('0 12 * * *', async () => {
     }
 });
 
-cron.schedule('0 13 * * *', async () => {
+cron.schedule('* * * * *', async () => {
   // console.log("關聯排程執行");
     try {
         const rules = JSON.parse(await readFile(path.join(__dirname, '../database/association_rules.json'), 'utf-8'));

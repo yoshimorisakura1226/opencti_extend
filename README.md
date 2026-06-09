@@ -13,6 +13,26 @@ This tool provides extended functionality for OpenCTI, specifically focusing on 
 
 ---
 
+## Development & Customization
+If you wish to modify the code and build your own version of the image:
+
+### Step 1
+Download or clone the entire source code repository.
+
+### Step 2
+After making your modifications, build the Docker image using the following command:
+
+```bash
+docker build -t opencti-extend-tool:latest .
+```
+
+### Step 3
+Export the newly built image to a `.tar` file for distribution.
+
+```bash
+docker save opencti-extend-tool:latest -o opencti-extend-tool.tar
+```
+
 ## Installation Steps
 
 Follow these steps to deploy the tool in your OpenCTI environment.
