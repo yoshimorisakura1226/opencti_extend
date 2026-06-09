@@ -1,0 +1,35 @@
+# 排除所有 node_modules，避免本地的相依套件覆蓋容器內的安裝
+node_modules
+**/node_modules
+
+# 排除開發與建置產生的暫存與輸出資料夾
+dist
+build
+.next
+.nuxt
+coverage
+
+# 排除 Git 相關設定
+.git
+.gitignore
+
+# 排除環境變數檔 (非常重要！避免機密外洩)
+.env
+.env.local
+.env.*.local
+
+# 排除 Docker 自身相關檔案
+Dockerfile
+.dockerignore
+
+# 排除 IDE 或作業系統自動產生的檔案
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+
+# 排除測試報告或日誌
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

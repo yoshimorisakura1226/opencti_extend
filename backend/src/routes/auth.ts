@@ -4,9 +4,14 @@ import { sign } from 'hono/jwt'; // Hono 內建 JWT 函式
 const auth = new Hono();
 
 // 硬編碼帳密 (之後建議改為環境變數)
-const ADMIN_USER = "admin@opencti.io";
-const ADMIN_PASS = "sakura";
+const ADMIN_USER = process.env.OPENCTI_ADMIN_EMAIL;
+const ADMIN_PASS = process.env.OPENCTI_ADMIN_PASSWORD;
 const JWT_SECRET = "opencti_labels_secret_2026";
+
+if (!ADMIN_PASS) {
+    console.error("❌ 錯誤：未設定 OPENCTI_ADMIN_PASS 環境變數");
+    process.exit(1); // 缺少必要密碼時直接停止程式
+}
 
 auth.post('/login', async (c) => {
   const { username, password } = await c.req.json();

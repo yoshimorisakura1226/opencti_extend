@@ -1,21 +1,14 @@
 [
   {
-    "type": "append",
+    "id": "1780969814658",
     "target": "vul",
     "conditions": [
-      "web-vul",
-      "xss-vul"
+      "web vul",
+      "xss vul",
+      "malware vul",
+      "sql vul"
     ],
-    "createdAt": "2026-06-03T..."
-  },
-  {
-    "id": "1780473007348",
-    "target": "vul",
-    "conditions": [
-      "123",
-      "456",
-      ""
-    ],
-    "createdAt": "2026-06-03T07:50:07.348Z"
+    "createdAt": "2026-06-09T01:50:14.658Z",
+    "updatedAt": "2026-06-09T03:06:09.404Z"
   }
 ]
