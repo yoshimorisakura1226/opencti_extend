@@ -33,6 +33,7 @@ app.get('*', async (c) => {
 const API_BASE = 'http://localhost:8081';
 
 cron.schedule('* * * * *', async () => {
+    console.log("Automatically merges labels running... ");
     try {
         const rules = JSON.parse(await readFile(path.join(__dirname, '../database/merge_rules.json'), 'utf-8'));
         for (const rule of rules) {
@@ -51,7 +52,7 @@ cron.schedule('* * * * *', async () => {
 });
 
 cron.schedule('* * * * *', async () => {
-  // console.log("關聯排程執行");
+    console.log("Automatically creates associations running... ");
     try {
         const rules = JSON.parse(await readFile(path.join(__dirname, '../database/association_rules.json'), 'utf-8'));
         for (const rule of rules) {
