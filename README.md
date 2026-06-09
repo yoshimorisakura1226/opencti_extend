@@ -33,6 +33,8 @@ Export the newly built image to a `.tar` file for distribution.
 docker save opencti-extend-tool:latest -o opencti-extend-tool.tar
 ```
 
+---
+
 ## Installation Steps
 
 Follow these steps to deploy the tool in your OpenCTI environment.
