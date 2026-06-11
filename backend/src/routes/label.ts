@@ -128,8 +128,6 @@ async function performMutation(query: string, variables: any = {}) {
         if (result.errors) throw new Error(result.errors[0].message);
         return result.data;
     } catch (error: any) {
-        const currentTime = `[${new Date().toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/')}]`;
-        console.error(`[${currentTime}]`);
         console.error("Mutation 執行失敗:", error.message);
         throw error;
     }

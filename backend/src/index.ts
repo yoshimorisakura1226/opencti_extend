@@ -30,12 +30,28 @@ app.get('*', async (c) => {
   return c.text('Not Found', 404);
 });
 
-// 自動化排程(每日12：00執行合併、13：00執行關聯新增)
+
 const API_BASE = `http://localhost:${PORT}`;
 
-cron.schedule('* * * * *', async () => {
-    const currentTime = `[${new Date().toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/')}]`;
-    console.log(`[${currentTime}]Automatically merges labels running... `);
+function currentTime(){
+    const now = new Date();
+    const taiwanTime = new Intl.DateTimeFormat('zh-TW', {
+        timeZone: 'Asia/Taipei',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false // 使用 24 小時制
+    }).format(now);
+    return taiwanTime.replace(/\//g, '/');
+}
+
+// 自動化排程(每日12：00執行合併、13：00執行關聯新增)
+cron.schedule('0 12 * * *', async () => {
+    currentTime();
+    console.log(`[${currentTime()}]Automatically merges labels running... `);
     try {
         const rules = JSON.parse(await readFile(path.join(__dirname, '../database/merge_rules.json'), 'utf-8'));
         for (const rule of rules) {
@@ -48,17 +64,15 @@ cron.schedule('* * * * *', async () => {
                 })
             });
         }
-    console.log(`[${new Date()}]Automatically merges finish... `);
+    console.log(`[${currentTime()}]Automatically merges finish... `);
     } catch (err) {
-        const currentTime = `[${new Date().toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/')}]`;
-        console.error(`[${currentTime}]`);
+        console.error(`[${currentTime()}]`);
         console.error("合併排程失敗:", err);
     }
 });
 
-cron.schedule('* * * * *', async () => {
-    const currentTime = `[${new Date().toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/')}]`;
-    console.log(`[${currentTime}]Automatically creates associations running... `);
+cron.schedule('0 13 * * *', async () => {
+    console.log(`[${currentTime()}]Automatically creates associations running... `);
     try {
         const rules = JSON.parse(await readFile(path.join(__dirname, '../database/association_rules.json'), 'utf-8'));
         for (const rule of rules) {
@@ -71,10 +85,9 @@ cron.schedule('* * * * *', async () => {
                 })
             });
         }
-    console.log(`[${new Date()}]Automatically associations finish... `);
+    console.log(`[${currentTime()}]Automatically associations finish... `);
     } catch (err) {
-        const currentTime = `[${new Date().toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/')}]`;
-        console.error(`[${currentTime}]`);
+        console.error(`[${currentTime()}]`);
         console.error("關聯新增排程失敗:", err);
     }
 });
@@ -83,6 +96,5 @@ serve({
   fetch: app.fetch,
   port: PORT
 }, (info) => {
-    const currentTime = `[${new Date().toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/')}]`;
-    console.log(`[${currentTime}]🚀 伺服器已啟動: http://localhost:${info.port}`);
+    console.log(`[${currentTime()}]🚀 伺服器已啟動: http://localhost:${info.port}`);
 });
