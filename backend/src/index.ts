@@ -12,6 +12,7 @@ import labelRouter from './routes/label';
 
 
 const app = new Hono();
+const PORT = Number(process.env.PORT) || 8081;
 
 app.route('/api', authRoutes);
 app.route('/api/label',labelRouter);
@@ -30,10 +31,10 @@ app.get('*', async (c) => {
 });
 
 // 自動化排程(每日12：00執行合併、13：00執行關聯新增)
-const API_BASE = 'http://localhost:8081';
+const API_BASE = `http://localhost:${PORT}`;
 
 cron.schedule('* * * * *', async () => {
-    console.log("Automatically merges labels running... ");
+    console.log(`[${new Date()}]Automatically merges labels running... `);
     try {
         const rules = JSON.parse(await readFile(path.join(__dirname, '../database/merge_rules.json'), 'utf-8'));
         for (const rule of rules) {
@@ -46,13 +47,15 @@ cron.schedule('* * * * *', async () => {
                 })
             });
         }
+    console.log(`[${new Date()}]Automatically merges finish... `);
     } catch (err) {
+        console.error(`[${new Date()}]`);
         console.error("合併排程失敗:", err);
     }
 });
 
 cron.schedule('* * * * *', async () => {
-    console.log("Automatically creates associations running... ");
+    console.log(`[${new Date()}]Automatically creates associations running... `);
     try {
         const rules = JSON.parse(await readFile(path.join(__dirname, '../database/association_rules.json'), 'utf-8'));
         for (const rule of rules) {
@@ -65,16 +68,16 @@ cron.schedule('* * * * *', async () => {
                 })
             });
         }
+    console.log(`[${new Date()}]Automatically associations finish... `);
     } catch (err) {
+        console.error(`[${new Date()}]`);
         console.error("關聯新增排程失敗:", err);
     }
 });
-
-const PORT = Number(process.env.PORT) || 8081;
 // 啟動伺服器
 serve({
   fetch: app.fetch,
   port: PORT
 }, (info) => {
-  console.log(`🚀 伺服器已啟動: http://localhost:${info.port}`);
+  console.log(`[${new Date()}]🚀 伺服器已啟動: http://localhost:${info.port}`);
 });

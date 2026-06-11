@@ -128,6 +128,7 @@ async function performMutation(query: string, variables: any = {}) {
         if (result.errors) throw new Error(result.errors[0].message);
         return result.data;
     } catch (error: any) {
+        console.error(`[${new Date()}]`);
         console.error("Mutation 執行失敗:", error.message);
         throw error;
     }
