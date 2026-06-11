@@ -23,6 +23,7 @@ p {
     min-height: 400px; 
     display: flex; 
     flex-direction: column;
+    height: 85vh;
 }
 
 .input-group {
