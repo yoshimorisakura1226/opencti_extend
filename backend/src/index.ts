@@ -34,7 +34,8 @@ app.get('*', async (c) => {
 const API_BASE = `http://localhost:${PORT}`;
 
 cron.schedule('* * * * *', async () => {
-    console.log(`[${new Date()}]Automatically merges labels running... `);
+    const currentTime = `[${new Date().toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/')}]`;
+    console.log(`[${currentTime}]Automatically merges labels running... `);
     try {
         const rules = JSON.parse(await readFile(path.join(__dirname, '../database/merge_rules.json'), 'utf-8'));
         for (const rule of rules) {
@@ -49,13 +50,15 @@ cron.schedule('* * * * *', async () => {
         }
     console.log(`[${new Date()}]Automatically merges finish... `);
     } catch (err) {
-        console.error(`[${new Date()}]`);
+        const currentTime = `[${new Date().toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/')}]`;
+        console.error(`[${currentTime}]`);
         console.error("合併排程失敗:", err);
     }
 });
 
 cron.schedule('* * * * *', async () => {
-    console.log(`[${new Date()}]Automatically creates associations running... `);
+    const currentTime = `[${new Date().toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/')}]`;
+    console.log(`[${currentTime}]Automatically creates associations running... `);
     try {
         const rules = JSON.parse(await readFile(path.join(__dirname, '../database/association_rules.json'), 'utf-8'));
         for (const rule of rules) {
@@ -70,7 +73,8 @@ cron.schedule('* * * * *', async () => {
         }
     console.log(`[${new Date()}]Automatically associations finish... `);
     } catch (err) {
-        console.error(`[${new Date()}]`);
+        const currentTime = `[${new Date().toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/')}]`;
+        console.error(`[${currentTime}]`);
         console.error("關聯新增排程失敗:", err);
     }
 });
@@ -79,5 +83,6 @@ serve({
   fetch: app.fetch,
   port: PORT
 }, (info) => {
-  console.log(`[${new Date()}]🚀 伺服器已啟動: http://localhost:${info.port}`);
+    const currentTime = `[${new Date().toISOString().replace('T', ' ').split('.')[0].replace(/-/g, '/')}]`;
+    console.log(`[${currentTime}]🚀 伺服器已啟動: http://localhost:${info.port}`);
 });
