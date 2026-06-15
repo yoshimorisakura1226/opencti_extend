@@ -59,6 +59,8 @@ Add the following configuration to your `docker-compose.yml` file.
 extend-tool:
     image: opencti-extend-tool:latest
     container_name: opencti-extend
+    volumes:
+      - ./database:/app/backend/database
     environment:
       - OPENCTI_URL=http://opencti:8080
       - OPENCTI_TOKEN=changeme
@@ -69,7 +71,15 @@ extend-tool:
       - "8081:8081"
     restart: always
 ```
-==Note: Please replace changeme with your actual OpenCTI configuration credentials.==
+Note: Please replace changeme with your actual OpenCTI configuration credentials.
+
+### Step 5
+Create `database` directory in `opencti/docker` folder
+
+```bash
+mkdir datebase
+sudo chmod -R 755 database
+```
 
 ### Step 5
 Start the service by running the following command in the same directory.

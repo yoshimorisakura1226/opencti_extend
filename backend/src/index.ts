@@ -49,7 +49,7 @@ function currentTime(){
 }
 
 // 自動化排程(每日12：00執行合併、13：00執行關聯新增)
-cron.schedule('0 12 * * *', async () => {
+cron.schedule('* * * * *', async () => {
     currentTime();
     console.log(`[${currentTime()}]Automatically merges labels running... `);
     try {
@@ -71,7 +71,7 @@ cron.schedule('0 12 * * *', async () => {
     }
 });
 
-cron.schedule('0 13 * * *', async () => {
+cron.schedule('* * * * *', async () => {
     console.log(`[${currentTime()}]Automatically creates associations running... `);
     try {
         const rules = JSON.parse(await readFile(path.join(__dirname, '../database/association_rules.json'), 'utf-8'));
