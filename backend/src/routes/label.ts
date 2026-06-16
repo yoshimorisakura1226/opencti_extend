@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { getCookie } from 'hono/cookie';
 import fs from 'fs';
 import path from 'path';
+import { readFile } from 'node:fs/promises';
 
 const labelRouter = new Hono();
 
@@ -19,6 +20,7 @@ if (!fs.existsSync(DATABASE_DIR)) {
 const baseUrl = process.env.OPENCTI_URL || 'http://localhost:8080';
 const GRAPHQL_URL = new URL('/graphql', baseUrl).toString();
 const OPENCTI_TOKEN = process.env.OPENCTI_TOKEN;
+const API_BASE = `http://localhost:${Number(process.env.PORT)}`;
 
 if (!OPENCTI_TOKEN) {
     throw new Error("❌ 系統錯誤：請設定 OPENCTI_TOKEN 環境變數");
@@ -131,6 +133,47 @@ async function performMutation(query: string, variables: any = {}) {
         console.error("Mutation 執行失敗:", error.message);
         throw error;
     }
+}
+
+export function currentTime(){
+    const now = new Date();
+    const taiwanTime = new Intl.DateTimeFormat('zh-TW', {
+        timeZone: 'Asia/Taipei',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false // 使用 24 小時制
+    }).format(now);
+    return taiwanTime.replace(/\//g, '/');
+}
+
+export async function runMergeTask() {
+    console.log(`[${currentTime()}] Automatically merges labels running...`);
+    const rules = JSON.parse(await readFile(path.join(__dirname, '../../database/merge_rules.json'), 'utf-8'));
+    for (const rule of rules) {
+        await fetch(`${API_BASE}/api/label/merge`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ target_name: rule.target, source_names: rule.sources })
+        });
+    }
+    console.log(`[${currentTime()}] Automatically merges finish...`);
+}
+
+export async function runAssociationTask() {
+    console.log(`[${currentTime()}] Automatically creates associations running...`);
+    const rules = JSON.parse(await readFile(path.join(__dirname, '../../database/association_rules.json'), 'utf-8'));
+    for (const rule of rules) {
+        await fetch(`${API_BASE}/api/label/association`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ target_name: rule.target, conditions: rule.conditions })
+        });
+    }
+    console.log(`[${currentTime()}] Automatically associations finish...`);
 }
 
 // --- API 路由 ---
@@ -321,9 +364,9 @@ labelRouter.post('/association', async (c) => {
 
         const condition_uuids = conditions.map((name: string) => {
             const foundId = labelMap[name];
-            if (!foundId) {
-                console.warn(`⚠️ 警告: 找不到標籤名稱: "${name}"`);
-            }
+            // if (!foundId) {
+            //     console.warn(`⚠️ 警告: 找不到標籤名稱: "${name}"`);
+            // }
             return foundId;
         }).filter(Boolean);
         if (condition_uuids.length === 0) {
@@ -356,6 +399,17 @@ labelRouter.post('/association', async (c) => {
         return c.json({ status: 'success', processed: processedCount });
     } catch (err: any) {
         return c.json({ error: err.message }, 500);
+    }
+});
+
+labelRouter.post('/runAllTasks', async (c) => {
+    console.log(`[${currentTime()}] Manually execute automated rule tasks`)
+    try {
+        await Promise.all([runMergeTask(), runAssociationTask()]);
+        return c.json({ status: 'success', message: '所有任務已立即執行' });
+    } catch (err) {
+        console.error(`[${currentTime()}] Manually execute error`, err);
+        return c.json({ status: 'error', message: '執行失敗' }, 500);
     }
 });
 

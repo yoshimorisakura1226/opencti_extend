@@ -10,6 +10,7 @@ const LabelGroup = () => {
   const [modalForm, setModalForm] = useState({ 
     type: 'merge', target: '', list: '', isEdit: false, id: null 
   });
+  const [isRunning, setIsRunning] = useState(false);
 
   const loadRules = async (type) => {
     try {
@@ -85,6 +86,18 @@ const LabelGroup = () => {
     loadRules(type);
   };
 
+  const handleRunNow = async () => {
+    if (!window.confirm("確定要立即執行所有規則嗎？")) return;
+    
+    setIsRunning(true); // 開始執行，鎖定按鈕
+    try {
+        const response = await fetch('/api/label/runAllTasks', { method: 'POST' });
+        const result = await response.json();
+    } finally {
+        setIsRunning(false); // 執行結束，解鎖按鈕
+    }
+  };
+
   return (
     <div className="group-container">
       <Header />
@@ -94,7 +107,11 @@ const LabelGroup = () => {
             setModalForm({ type: 'merge', target: '', list: '', isEdit: false, id: null });
             setIsModalOpen(true);
           }}>+ 新增自動化規則</button>
-          
+
+          <button className="add-btn-global" onClick={handleRunNow} disabled={isRunning}>
+            {isRunning ? '執行中...' : '立即執行'}
+          </button>
+
           <input 
             type="text" 
             placeholder="搜尋規則..." 
@@ -102,6 +119,7 @@ const LabelGroup = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+
         </div>
 
         <section className="rule-section">
@@ -128,7 +146,7 @@ const LabelGroup = () => {
 
         <section className="rule-section">
           <div className="section-header" onClick={() => setExpanded(p => ({...p, association: !p.association}))}>
-            <h3>{expanded.association ? '▼' : '▶'} 自動化新增規則</h3>
+            <h3>{expanded.association ? '▼' : '▶'} 自動化關聯規則</h3>
           </div>
           {expanded.association && (
             <div className="section-body">

@@ -17,7 +17,7 @@ This tool provides extended functionality for OpenCTI, specifically focusing on 
 If you wish to modify the code and build your own version of the image:
 
 ### Step 1
-Download or clone the entire source code repository.
+Download or clone the source code repository.
 
 ### Step 2
 After making your modifications, build the Docker image using the following command:
@@ -67,6 +67,8 @@ extend-tool:
       - OPENCTI_ADMIN_EMAIL=changeme
       - OPENCTI_ADMIN_PASSWORD=changeme
       - PORT=8081
+      - MERGE_SCHEDULE=* * * * *
+      - ASSOCIATION_SCHEDULE=* * * * *
     ports:
       - "8081:8081"
     restart: always
@@ -81,7 +83,7 @@ mkdir datebase
 sudo chmod -R 755 database
 ```
 
-### Step 5
+### Step 6
 Start the service by running the following command in the same directory.
 
 ```bash
