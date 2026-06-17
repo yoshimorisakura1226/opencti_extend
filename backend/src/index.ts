@@ -8,7 +8,7 @@ import path from 'path';
 import fs from 'fs';
 import authRoutes from './routes/auth';
 import labelRouter from './routes/label';
-import { runMergeTask, runAssociationTask,currentTime } from './routes/label';
+import { runMergeTask, runAssociationTask,getCurrentTime } from './routes/label';
 
 const app = new Hono();
 const PORT = Number(process.env.PORT) || 8081;
@@ -39,5 +39,5 @@ serve({
   fetch: app.fetch,
   port: PORT
 }, (info) => {
-    console.log(`[${currentTime()}]🚀 伺服器已啟動: http://localhost:${info.port}`);
+    console.log(`[${getCurrentTime()}]🚀 伺服器已啟動: http://localhost:${info.port}`);
 });

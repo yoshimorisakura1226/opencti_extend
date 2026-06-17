@@ -221,15 +221,24 @@ p {
   background: #1e1e1e; padding: 25px; border-radius: 8px; width: 400px;
   display: flex; flex-direction: column; gap: 15px; color: white;
 }
-.modal-content input, .modal-content select { padding: 10px; background: #333; border: 1px solid #444; color: white; }
+
+.modal-content input, 
+.modal-content select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #444;
+  background: #2b2b2b;
+  color: white;
+}
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
 .rule-card { display: flex; justify-content: space-between; padding: 12px; background: #2a2a2a; margin-bottom: 8px; border-radius: 4px; }
 
 .rule-info {
   display: flex;
   flex-direction: row;
-  gap: 4px; /* 增加目標與來源兩行文字之間的間距 */
-  margin-right: 20px; /* 給按鈕留出額外的防護空間 */
+  gap: 4px;
+  margin-right: 20px;
 }
 
 .rule-info span{
@@ -256,3 +265,35 @@ p {
   border: 1px solid #444; 
   color: white; 
   width: 250px; }
+
+  .suggestions-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #2b2b2b; /* 配合你的深色佈景 */
+  border: 1px solid #444;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  z-index: 1000;
+  max-height: 150px;
+  overflow-y: auto;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.suggestions-list li {
+  padding: 8px 12px;
+  cursor: pointer;
+  color: #fff;
+  transition: background 0.2s;
+}
+
+.suggestions-list li:hover {
+  background: #007bff;
+}
+
+.autocomplete-wrapper {
+  width: 100%;
+}

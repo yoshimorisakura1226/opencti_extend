@@ -135,7 +135,7 @@ async function performMutation(query: string, variables: any = {}) {
     }
 }
 
-export function currentTime(){
+export function getCurrentTime(){
     const now = new Date();
     const taiwanTime = new Intl.DateTimeFormat('zh-TW', {
         timeZone: 'Asia/Taipei',
@@ -151,7 +151,7 @@ export function currentTime(){
 }
 
 export async function runMergeTask() {
-    console.log(`[${currentTime()}] Automatically merges labels running...`);
+    console.log(`[${getCurrentTime()}] Automatically merges labels running...`);
     const rules = JSON.parse(await readFile(path.join(__dirname, '../../database/merge_rules.json'), 'utf-8'));
     for (const rule of rules) {
         await fetch(`${API_BASE}/api/label/merge`, {
@@ -160,11 +160,11 @@ export async function runMergeTask() {
             body: JSON.stringify({ target_name: rule.target, source_names: rule.sources })
         });
     }
-    console.log(`[${currentTime()}] Automatically merges finish...`);
+    console.log(`[${getCurrentTime()}] Automatically merges finish...`);
 }
 
 export async function runAssociationTask() {
-    console.log(`[${currentTime()}] Automatically creates associations running...`);
+    console.log(`[${getCurrentTime()}] Automatically creates associations running...`);
     const rules = JSON.parse(await readFile(path.join(__dirname, '../../database/association_rules.json'), 'utf-8'));
     for (const rule of rules) {
         await fetch(`${API_BASE}/api/label/association`, {
@@ -173,7 +173,7 @@ export async function runAssociationTask() {
             body: JSON.stringify({ target_name: rule.target, conditions: rule.conditions })
         });
     }
-    console.log(`[${currentTime()}] Automatically associations finish...`);
+    console.log(`[${getCurrentTime()}] Automatically associations finish...`);
 }
 
 // --- API 路由 ---
@@ -403,12 +403,12 @@ labelRouter.post('/association', async (c) => {
 });
 
 labelRouter.post('/runAllTasks', async (c) => {
-    console.log(`[${currentTime()}] Manually execute automated rule tasks`)
+    console.log(`[${getCurrentTime()}] Manually execute automated rule tasks`)
     try {
         await Promise.all([runMergeTask(), runAssociationTask()]);
         return c.json({ status: 'success', message: '所有任務已立即執行' });
     } catch (err) {
-        console.error(`[${currentTime()}] Manually execute error`, err);
+        console.error(`[${getCurrentTime()}] Manually execute error`, err);
         return c.json({ status: 'error', message: '執行失敗' }, 500);
     }
 });

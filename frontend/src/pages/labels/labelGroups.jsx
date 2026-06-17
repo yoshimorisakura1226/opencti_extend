@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useRef } from 'react';
 import Header from '../../components/layout/Header';
 import './labels.css';
 
 const LabelGroup = () => {
+  const inputRef = useRef(null);
+  const [activeField, setActiveField] = useState(null);
   const [rules, setRules] = useState({ merge: [], association: [] });
   const [expanded, setExpanded] = useState({ merge: true, association: false });
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,6 +13,8 @@ const LabelGroup = () => {
     type: 'merge', target: '', list: '', isEdit: false, id: null 
   });
   const [isRunning, setIsRunning] = useState(false);
+  const [allLabels, setAllLabels] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
 
   const loadRules = async (type) => {
     try {
@@ -22,9 +26,22 @@ const LabelGroup = () => {
     }
   };
 
+  const fetchLabels = async () => {
+    try {
+      const res = await fetch('/api/label');
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setAllLabels(data);
+      }
+    } catch (err) {
+      console.error("更新標籤列表失敗:", err);
+    }
+  };
+
   useEffect(() => {
     loadRules('merge');
     loadRules('association');
+    fetchLabels();
   }, []);
 
   // 搜尋過濾邏輯
@@ -73,11 +90,54 @@ const LabelGroup = () => {
 
     if (res.ok) {
       loadRules(modalForm.type);
+      fetchLabels();
       setIsModalOpen(false);
       setModalForm({ type: 'merge', target: '', list: '', isEdit: false, id: null });
     } else {
       alert("儲存失敗");
     }
+  };
+
+  const getSuggestions = (inputValue, isTargetInput) => {
+    const filtered = allLabels.filter(label => {
+      const matches = label.value.toLowerCase().includes(inputValue.toLowerCase());
+      if (!isTargetInput && modalForm.target) {
+        return matches && label.value !== modalForm.target; // 排除目標欄位的值
+      }
+      return matches;
+    });
+    return filtered.slice(0, 5);
+  };
+
+  const handleInputChange = (e, field) => {
+    const value = e.target.value;
+    setModalForm(prev => ({ ...prev, [field]: value }));
+    setActiveField(field);
+
+    const term = field === 'list' ? value.split(',').pop().trim() : value;
+    
+    if (term.length > 0) {
+      const matches = allLabels.filter(label => 
+        label.value.toLowerCase().includes(term.toLowerCase()) && 
+        (field === 'target' || label.value !== modalForm.target) // list 欄位排除已選 target
+      ).slice(0, 5);
+      setSuggestions(matches);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const selectSuggestion = (val, field) => {
+    if (field === 'target') {
+      setModalForm(prev => ({ ...prev, target: val }));
+    } else {
+      const parts = modalForm.list.split(',');
+      parts.pop();
+      parts.push(val);
+      setModalForm(prev => ({ ...prev, list: parts.join(', ') + ', ' }));
+    }
+    setSuggestions([]);
+    setActiveField(null);
   };
 
   const handleDelete = async (type, id) => {
@@ -104,6 +164,7 @@ const LabelGroup = () => {
       <div className="content">
         <div className="global-actions">
           <button className="add-btn-global" onClick={() => {
+            fetchLabels();
             setModalForm({ type: 'merge', target: '', list: '', isEdit: false, id: null });
             setIsModalOpen(true);
           }}>+ 新增自動化規則</button>
@@ -175,10 +236,44 @@ const LabelGroup = () => {
               <option value="merge">合併規則 (Merge)</option>
               <option value="association">關聯新增 (Association)</option>
             </select>
-            <input placeholder="輸入主要目標" value={modalForm.target}
-                   onChange={(e) => setModalForm({...modalForm, target: e.target.value})} />
-            <input placeholder={modalForm.type === 'merge' ? "輸入來源 Labels (逗號分隔)" : "輸入觸發 Labels (逗號分隔)"} value={modalForm.list}
-                   onChange={(e) => setModalForm({...modalForm, list: e.target.value})} />
+
+            {/* --- 主要目標 Input (加上自動完成) --- */}
+            <div className="autocomplete-wrapper" style={{ position: 'relative' }}>
+              <input 
+                placeholder="輸入主要目標" 
+                value={modalForm.target}
+                onChange={(e) => handleInputChange(e, 'target')}
+              />
+              {/* 如果正在輸入 target，顯示 target 的建議 */}
+              {activeField === 'target' && suggestions.length > 0 && (
+                <ul className="suggestions-list">
+                  {suggestions.map(s => (
+                    <li key={s.id} onClick={() => selectSuggestion(s.value, 'target')}>
+                      {s.value}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            
+            {/* --- 列表 Input (自動完成，排除已選 target) --- */}
+            <div className="autocomplete-wrapper" style={{ position: 'relative' }}>
+              <input 
+                placeholder={modalForm.type === 'merge' ? "輸入來源 Labels (逗號分隔)" : "輸入觸發 Labels (逗號分隔)"} 
+                value={modalForm.list}
+                onChange={(e) => handleInputChange(e, 'list')}
+              />
+              {activeField === 'list' && suggestions.length > 0 && (
+                <ul className="suggestions-list">
+                  {suggestions.map(s => (
+                    <li key={s.id} onClick={() => selectSuggestion(s.value, 'list')}>
+                      {s.value}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            
             <div className="modal-actions">
               <button onClick={handleAddSubmit}>儲存</button>
               <button onClick={() => setIsModalOpen(false)}>取消</button>
