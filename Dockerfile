@@ -13,7 +13,7 @@ COPY backend/package*.json ./
 RUN npm install
 COPY backend/ .
 # 執行 TypeScript 編譯 (已修正語法，移除註解干擾)
-RUN npx tsc src/index.ts --outDir dist --target esnext --module nodenext --esModuleInterop --skipLibCheck --allowJs --checkJs false --noImplicitAny false
+RUN ./node_modules/.bin/tsc
 
 # 階段 3: 最終運行環境
 FROM node:20-slim

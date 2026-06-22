@@ -30,6 +30,25 @@ p {
   margin-bottom: 15px;
 }
 
+.search-group {
+  display: flex;
+  gap: 15px;
+}
+
+.date-filter{
+  flex-shrink: 0;
+  width: 220px;
+}
+
+.date-filter .react-datepicker-wrapper {
+  width: 100%;
+}
+
+.date-filter .styled-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .styled-input {
   width: 100%;
   background-color: rgb(38, 38, 38);

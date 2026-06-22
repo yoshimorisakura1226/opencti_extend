@@ -193,7 +193,7 @@ labelRouter.get('/', async (c) => {
                 query: `
                     query GetLabels($first: Int, $after: ID) {
                         labels(first: $first, after: $after) {
-                            edges { node { id value } }
+                            edges { node { id value created} }
                             pageInfo { hasNextPage endCursor }
                         }
                     }
