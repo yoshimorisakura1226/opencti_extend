@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import LabelMergePage from './pages/labels/labelMerge';
 import LabelGroupPage from './pages/labels/labelGroups';
 import LabelSearchPage from './pages/labels/labelSearch';
+import MalwareMergePage from './pages/malware/malwareMerge'
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
@@ -43,7 +44,8 @@ function App() {
         <Route path="/" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} />} />
         <Route path="/dashboard/labels/merge" element={<LabelMergePage />} />
         <Route path="/dashboard/labels/groups" element={<LabelGroupPage />} />
-        <Route path="/dashboard/labels/groups" element={<LabelSearchPage />} />
+        {/* <Route path="/dashboard/labels/groups" element={<LabelSearchPage />} /> */}
+        <Route path="/dashboard/malware/merge" element={<MalwareMergePage />} />
       </Routes>
     </BrowserRouter>
   );

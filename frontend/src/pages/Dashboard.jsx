@@ -15,7 +15,13 @@ const Dashboard = () => {
         <div className="labels-grid">
           <DashCard title="Merge" to="/dashboard/labels/merge" />
           <DashCard title="Group" to="/dashboard/labels/groups" />
-          <DashCard title="Search" to="/dashboard/labels/search" />
+          {/* <DashCard title="Search" to="/dashboard/labels/search" /> */}
+        </div>
+      </fieldset>
+      <fieldset className="labels-wrapper">
+        <legend className="labels-heading">Malware</legend>
+        <div className="labels-grid">
+          <DashCard title="Merge" to="/dashboard/malware/merge" />
         </div>
       </fieldset>
       <div className="main-content">

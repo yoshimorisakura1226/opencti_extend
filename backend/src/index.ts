@@ -8,6 +8,7 @@ import path from 'path';
 import fs from 'fs';
 import authRoutes from './routes/auth';
 import labelRouter from './routes/label';
+import malwareRouter from './routes/malawre';
 import { runMergeTask, runAssociationTask,getCurrentTime } from './routes/label';
 
 const app = new Hono();
@@ -15,6 +16,7 @@ const PORT = Number(process.env.PORT) || 8081;
 
 app.route('/api', authRoutes);
 app.route('/api/label',labelRouter);
+app.route('/api/malware',malwareRouter);
 
 const staticPath = path.join(__dirname, '../../frontend/dist');
 app.use('/*', serveStatic({ root: staticPath }));
