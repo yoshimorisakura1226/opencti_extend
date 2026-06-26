@@ -148,7 +148,13 @@ const LabelMerge = () => {
               >
                 - 刪除
               </button>
-
+              <button
+                className="action-button merge-button"
+                onClick={handleMergeSubmit}
+                disabled={loading || selectedSourceNames.length === 0}
+              >
+                = 合併
+              </button>
               <LabelModal 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
@@ -230,14 +236,6 @@ const LabelMerge = () => {
             </span>
           ))}
         </div>
-
-        <button
-          className="action-button"
-          onClick={handleMergeSubmit}
-          disabled={loading || selectedSourceNames.length === 0}
-        >
-          {loading ? '🚀 正在大融合中...' : `🚀 執行 ${selectedSourceNames.length} 個標籤合併`}
-        </button>
       </div>
     </div>
   );
