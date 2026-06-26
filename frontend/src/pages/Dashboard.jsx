@@ -15,9 +15,9 @@ const Dashboard = () => {
         <div className="labels-grid">
           <DashCard title="Merge" to="/dashboard/labels/merge" />
           <DashCard title="Group" to="/dashboard/labels/groups" />
+          <DashCard title="Search" to="/dashboard/labels/search" />
         </div>
       </fieldset>
-        
       <div className="main-content">
         <Outlet />
       </div>

@@ -193,7 +193,7 @@ labelRouter.get('/', async (c) => {
                 query: `
                     query GetLabels($first: Int, $after: ID) {
                         labels(first: $first, after: $after) {
-                            edges { node { id value created} }
+                            edges { node { id value color created} }
                             pageInfo { hasNextPage endCursor }
                         }
                     }
@@ -217,6 +217,127 @@ labelRouter.get('/', async (c) => {
         }
         return c.json(allLabels);
     } catch (err: any) {
+        return c.json({ error: err.message }, 500);
+    }
+});
+
+labelRouter.post('/', async (c) => {
+    const { value, color } = await c.req.json(); // 接收前端傳來的資料
+    if (!value) return c.json({ error: '標籤名稱不可為空' }, 400);
+
+    const token = OPENCTI_TOKEN;
+    try {
+        const graphqlQuery = {
+            query: `
+                mutation LabelAdd($input: LabelAddInput!) {
+                    labelAdd(input: $input) {
+                        id
+                        value
+                        color
+                    }
+                }
+            `,
+            variables: {
+                input: {
+                    value: value,
+                    color: color || '#ffffff' // 預設顏色
+                }
+            }
+        };
+
+        const response = await fetch(GRAPHQL_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(graphqlQuery)
+        });
+
+        const result = await response.json();
+        if (result.errors) throw new Error(result.errors[0].message);
+
+        return c.json(result.data.labelAdd);
+    } catch (err: any) {
+        return c.json({ error: err.message }, 500);
+    }
+});
+
+labelRouter.put('/:id', async (c) => {
+    const id = c.req.param('id'); // 從 URL 取得 ID
+    const { value, color } = await c.req.json();
+    const token = OPENCTI_TOKEN;
+
+    try {
+        const graphqlQuery = {
+            query: `
+                mutation LabelEditionFieldPatchMutation($id: ID!, $input: [EditInput]!) {
+                    labelEdit(id: $id) {
+                        fieldPatch(input: $input) {
+                            id
+                            value
+                            color
+                        }
+                    }
+                }
+            `,
+            variables: {
+                id: id,
+                input: [
+                    { key: "value", value: [value] },
+                    { key: "color", value: [color] }
+                ]
+            }
+        };
+
+        const response = await fetch(GRAPHQL_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify(graphqlQuery)
+        });
+
+        const result = await response.json();
+        if (result.errors) throw new Error(result.errors[0].message);
+
+        return c.json(result.data.labelEdit);
+    } catch (err: any) {
+        console.error(`[${getCurrentTime()}]OpenCTI API Error:`, err.message);
+        return c.json({ error: err.message }, 500);
+    }
+});
+
+labelRouter.delete('/:id', async (c) => {
+    const id = c.req.param('id');
+    const token = OPENCTI_TOKEN;
+
+    try {
+        const graphqlQuery = {
+            query: `
+                mutation LabelPopoverDeletionMutation($id: ID!) {
+                    labelEdit(id: $id) {
+                        delete
+                    }
+                }
+            `,
+            variables: { id: id }
+        };
+
+        const response = await fetch(GRAPHQL_URL, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify(graphqlQuery)
+        });
+
+        const result = await response.json();
+        
+        if (result.errors) {
+            console.error("OpenCTI Delete Error:", JSON.stringify(result.errors, null, 2));
+            throw new Error(result.errors[0].message);
+        }
+
+        return c.json({ success: true, deletedId: id });
+    } catch (err: any) {
+        console.error(`[${getCurrentTime()}] Delete API Error:`, err.message);
         return c.json({ error: err.message }, 500);
     }
 });

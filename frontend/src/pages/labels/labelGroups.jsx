@@ -158,6 +158,10 @@ const LabelGroup = () => {
     }
   };
 
+  const handleBlur = () => {
+    setTimeout(() => setActiveField(null), 200);
+  };
+
   return (
     <div className="group-container">
       <Header />
@@ -243,6 +247,8 @@ const LabelGroup = () => {
                 placeholder="輸入主要目標" 
                 value={modalForm.target}
                 onChange={(e) => handleInputChange(e, 'target')}
+                onFocus={() => setActiveField('target')}
+                onBlur={handleBlur}
               />
               {/* 如果正在輸入 target，顯示 target 的建議 */}
               {activeField === 'target' && suggestions.length > 0 && (
@@ -262,6 +268,8 @@ const LabelGroup = () => {
                 placeholder={modalForm.type === 'merge' ? "輸入來源 Labels (逗號分隔)" : "輸入觸發 Labels (逗號分隔)"} 
                 value={modalForm.list}
                 onChange={(e) => handleInputChange(e, 'list')}
+                onFocus={() => setActiveField('list')}
+                onBlur={handleBlur}
               />
               {activeField === 'list' && suggestions.length > 0 && (
                 <ul className="suggestions-list">

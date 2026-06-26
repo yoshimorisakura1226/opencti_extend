@@ -3,8 +3,9 @@ import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/auth/Login';
 import Dashboard from './pages/Dashboard';
-import MergePage from './pages/labels/labelMerge';
-import GroupPage from './pages/labels/labelGroups'
+import LabelMergePage from './pages/labels/labelMerge';
+import LabelGroupPage from './pages/labels/labelGroups';
+import LabelSearchPage from './pages/labels/labelSearch';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
@@ -40,8 +41,9 @@ function App() {
         <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />}>
         </Route>
         <Route path="/" element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} />} />
-        <Route path="/dashboard/labels/merge" element={<MergePage />} />
-        <Route path="/dashboard/labels/groups" element={<GroupPage />} />
+        <Route path="/dashboard/labels/merge" element={<LabelMergePage />} />
+        <Route path="/dashboard/labels/groups" element={<LabelGroupPage />} />
+        <Route path="/dashboard/labels/groups" element={<LabelSearchPage />} />
       </Routes>
     </BrowserRouter>
   );

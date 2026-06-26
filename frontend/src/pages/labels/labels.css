@@ -99,6 +99,7 @@ p {
 
 .selected-preview {
   margin-top: 10px;
+  margin-bottom: 10px;
   padding: 10px;
   background: #161616;
   border: 1px solid #333;
@@ -125,15 +126,13 @@ p {
 }
 
 .action-button {
-  width: 85vw;
-  padding: 1rem;
+  padding: 0.5rem;
   background-color: #06b6d4;
   color: white;
   border: none;
   border-radius: 4px;
   font-weight: bold;
   cursor: pointer;
-  margin-top: 1rem;
 }
 
 .action-button:disabled {
@@ -315,4 +314,36 @@ p {
 
 .autocomplete-wrapper {
   width: 100%;
+}
+
+.action-group {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.top-group {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+
+.top-group p {
+  grid-column: 2;
+  margin: 0;
+}
+
+.top-group>div{
+  grid-column: 3;
+  justify-self: end;
+}
+
+.del-button { 
+  margin-left: 10px;
+  background-color: #ff4d4f;
+}
+
+.del-button:hover:not(:disabled) { 
+  background-color: #b83e40;
 }

@@ -3,6 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import './labels.css';
 import Header from '../../components/layout/Header';
+import LabelModal from '../../components/layout/LabelsModal';
 
 const LabelMerge = () => {
   const [labels, setLabels] = useState([]);
@@ -14,6 +15,8 @@ const LabelMerge = () => {
   const [loading, setLoading] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingLabel, setEditingLabel] = useState(null);
 
   const fetchLabels = async () => {
     try {
@@ -75,35 +78,108 @@ const LabelMerge = () => {
     }
   };
 
+  const handleSave = async (data) => {
+    const url = editingLabel ? `/api/label/${editingLabel.id}` : '/api/label';
+    const method = editingLabel ? 'PUT' : 'POST';
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      
+      if (res.ok) {
+        setIsModalOpen(false);
+        setEditingLabel(null);
+        await fetchLabels();
+      } else {
+        alert("儲存失敗");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleBatchDelete = async () => {
+    if (selectedSourceNames.length === 0) return;
+    if (!window.confirm(`確定要刪除這 ${selectedSourceNames.length} 個標籤嗎？`)) return;
+
+    setLoading(true);
+    try {
+      const idsToDelete = labels
+        .filter(l => selectedSourceNames.includes(l.value))
+        .map(l => l.id);
+
+      // 執行批次請求
+      await Promise.all(idsToDelete.map(id => 
+        fetch(`/api/label/${id}`, { method: 'DELETE' })
+      ));
+
+      setSelectedSourceNames([]);
+      await fetchLabels();
+      alert("刪除成功！");
+    } catch (err) {
+      console.error("刪除失敗", err);
+      alert("刪除過程中發生錯誤");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="merge-container">
       <Header />
       <div className='labelboard' style={{ width: '85vw' }}>
         <div className="input-group">
-          <p>📦 系統總標籤: <b>{labels.length}</b></p>
-            <div className='search-group'>
-              <input
-                className="styled-input"
-                placeholder="搜尋標籤..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
+          <div className='top-group'>
+            <p>📦 系統總標籤: <b>{labels.length}</b></p>
+            <div>
+              <button 
+                className="action-button add-del--button" 
+                onClick={() => { setEditingLabel(null); setIsModalOpen(true); }}
+              >
+                + 新增
+              </button>
+              <button 
+                className="action-button del-button" 
+                onClick={handleBatchDelete} // 直接呼叫批次刪除
+                disabled={selectedSourceNames.length === 0}
+              >
+                - 刪除
+              </button>
+
+              <LabelModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                onSave={handleSave} 
+                editingLabel={editingLabel}
               />
-              <div className="date-filter">
-                <DatePicker
-                  selectsRange
-                  startDate={startDate}
-                  endDate={endDate}
-                  onChange={([start, end]) => {
-                    setStartDate(start);
-                    setEndDate(end);
-                  }}
-                  className="styled-input"
-                  dateFormat="yyyy/MM/dd"
-                  placeholderText="選擇日期範圍"
-                  isClearable
-                />
-              </div>
             </div>
+          </div>
+          <div className='search-group'>
+            <input
+              className="styled-input"
+              placeholder="Search Labels..."
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+            <div className="date-filter">
+              <DatePicker
+                selectsRange
+                startDate={startDate}
+                endDate={endDate}
+                onChange={([start, end]) => {
+                  setStartDate(start);
+                  setEndDate(end);
+                }}
+                className="styled-input"
+                dateFormat="yyyy/MM/dd"
+                placeholderText="Select Date"
+                isClearable
+              />
+            </div>
+          </div>
         </div>
 
         <div className="input-group" style={{ position: 'relative' }}>
@@ -135,6 +211,11 @@ const LabelMerge = () => {
                 key={l.id}
                 className={`label-item ${selectedSourceNames.includes(l.value) ? 'selected' : ''}`}
                 onClick={() => toggleSourceLabel(l.value)}
+                onDoubleClick={() => { 
+                  setEditingLabel(l);
+                  setIsModalOpen(true);
+                }}
+                style={{ borderLeft: `5px solid ${l.color || '#cccccc'}` }}
               >
                 {l.value}
               </div>
